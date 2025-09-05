@@ -37,6 +37,8 @@ pub struct Toolbar {
     last_two_mode_variants: (MouseModeVariant, MouseModeVariant),
     /// Hack to allow text tool to use non-copyable state
     boxed_transformable: RefCell<Option<Box<dyn Transformable>>>,
+    /// Handle to the currently open text dialog window (if any)
+    active_text_dialog: RefCell<Option<gtk::Window>>,
 }
 
 struct MouseModeButton {
@@ -96,6 +98,7 @@ impl Toolbar {
             eyedropper_brush,
             last_two_mode_variants: (MouseModeVariant::Cursor, MouseModeVariant::Cursor),
             boxed_transformable: RefCell::new(None),
+            active_text_dialog: RefCell::new(None),
         }));
 
         toolbar_p
@@ -307,5 +310,15 @@ impl Toolbar {
 
     pub fn try_take_boxed_transformable(&self) -> Option<Box<dyn Transformable>> {
         std::mem::replace(&mut self.boxed_transformable.borrow_mut(), None)
+    }
+
+    pub fn set_active_text_dialog(&self, window: gtk::Window) {
+        *self.active_text_dialog.borrow_mut() = Some(window);
+    }
+
+    pub fn close_active_text_dialog(&self) {
+        if let Some(win) = self.active_text_dialog.borrow_mut().take() {
+            win.close();
+        }
     }
 }

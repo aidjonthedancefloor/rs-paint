@@ -1,16 +1,14 @@
 use crate::geometry::xywh_to_matrix_f;
-use crate::image::DrawableImage;
-use crate::ui::dialog::{close_dialog, no_button_dialog};
+use crate::ui::dialog::no_button_dialog;
 
 use super::{Canvas, FreeTransformState, MouseMode, MouseModeVariant, Toolbar};
 use crate::ui::form::{Form, FormBuilderIsh};
 use crate::transformable::Transformable;
-use crate::image::undo::action::ActionName;
 use crate::ui::UiState;
 
 use std::rc::Rc;
 use std::cell::RefCell;
-use gtk::{gdk, pango, cairo, prelude::*, TextView};
+use gtk::{gdk, pango, cairo, prelude::*};
 use gdk::{ModifierType, RGBA};
 use glib_macros::clone;
 
@@ -227,11 +225,15 @@ impl super::MouseModeState for TextState {
             Self::Ready => {
                 let (form, get_text_specs) = mk_text_insertion_dialog(canvas.ui_p());
 
-                no_button_dialog(
+                let dialog = no_button_dialog(
                     canvas.ui_p().borrow().window(),
                     "Add Text",
                     form.widget(),
-                ).grab_focus();
+                );
+                dialog.grab_focus();
+
+                // remember dialog so we can close it automatically later
+                toolbar.set_active_text_dialog(dialog);
 
                 let (cx, cy) = canvas.cursor_pos_pix_f();
 

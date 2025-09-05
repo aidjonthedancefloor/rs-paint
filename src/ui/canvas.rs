@@ -1016,6 +1016,9 @@ impl Canvas {
                 self.commit_changes(ActionName::Delete);
             }
         }
+
+        // close any active text dialog once the transform is finalized
+        self.ui_p.borrow().toolbar_p.borrow().close_active_text_dialog();
     }
 
     fn commit_transformable_no_update(&mut self) {
